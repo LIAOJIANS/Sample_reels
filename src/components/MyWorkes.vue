@@ -168,7 +168,6 @@
     display: flex;
   }
   .box {
-
     width: 60%;
     position: absolute;
     left: 50%;
@@ -183,14 +182,13 @@
     cursor: pointer;
   }
   .box_son:nth-of-type(1),
-  .box_son:nth-of-type(1+n*3) {
+  .box_son:nth-of-type(4) {
     margin-left: 0;
   }
   .time {
     font-size: 13px;
     color: #999;
   }
-
   .bottom {
     margin-top: 13px;
     line-height: 12px;
@@ -203,18 +201,15 @@
     padding: 0;
     float: right;
   }
-
   .image {
     width: 100%;
     display: block;
   }
-
   .clearfix:before,
   .clearfix:after {
     display: table;
     content: "";
   }
-
   .clearfix:after {
     clear: both
   }
