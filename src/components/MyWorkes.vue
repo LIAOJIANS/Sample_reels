@@ -2,7 +2,7 @@
   <div class="work">
     <div class="content">
       <div class="left">
-        <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
+        <el-radio-group v-model="isCollapse">
           <el-radio-button :label="false">个人介绍</el-radio-button>
           <el-radio-button :label="true">收起</el-radio-button>
         </el-radio-group>
@@ -27,33 +27,40 @@
           </el-menu-item>
         </el-menu>
       </div>
-      <el-row class="box">
-        <el-col class="box_son" :span="8" v-for="(o, index) in data" :key="index">
-          <el-card :body-style="{ padding: '0px' }" shadow="hover">
-            <el-popover
-              placement="left"
-              :title="o.title"
-              width="200"
-              trigger="hover"
-              :content="o.content">
-              <img  slot="reference" @click="showLeft(o)" src="../assets/images/LIAOJIANS.png" class="image">
-            </el-popover>
-            <div style="padding: 14px;">
-              <span>{{ o.title }}</span>
-              <div class="bottom clearfix">
-                <time class="time">
-                  <el-rate
-                    v-model="value">
-                  </el-rate>
-                </time>
-                <el-tooltip class="item" effect="dark" content="点击跳转至该项目" placement="right">
-                  <el-button type="text" class="button" @click="src(o.src)">操作按钮</el-button>
-                </el-tooltip>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+      <transition name="el-zoom-in-center">
+        <div class="swiper-container"  v-show="isShow">
+          <div class="swiper-wrapper">
+            <el-row class="swiper-slide" v-for="(items, index) in datasArr" :key="index">
+              <div class="box_son" :span="8" v-for="(item, index) in items" :key="index">
+                  <el-card :body-style="{ padding: '0px' }" shadow="hover">
+                    <el-popover
+                      placement="left"
+                      :title="item.title"
+                      width="200"
+                      trigger="hover"
+                      :content="item.content">
+                      <img  slot="reference" @click="showLeft(item)" src="../assets/images/LIAOJIANS.png" class="image">
+                    </el-popover>
+                    <div style="padding: 14px;">
+                      <span>{{ item.title }}</span>
+                      <div class="bottom clearfix">
+                        <time class="time">
+                          <el-rate
+                            v-model="value">
+                          </el-rate>
+                        </time>
+                        <el-tooltip class="item" effect="dark" content="点击跳转至该项目" placement="right">
+                          <el-button type="text" class="button" @click="src(item.src)">操作按钮</el-button>
+                        </el-tooltip>
+                      </div>
+                    </div>
+                  </el-card>
+                </div>
+            </el-row>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </transition>
     </div>
     <el-drawer
       :title="content.title"
@@ -66,6 +73,8 @@
 </template>
 
 <script>
+  import Swiper from 'swiper'
+  import 'swiper/dist/css/swiper.min.css'
   export default {
     data() {
       return {
@@ -73,62 +82,99 @@
         direction: 'ltr',
         value: null,
         isCollapse: true,
-        data: [
-          {
-            id: 1,
-            title: 'GitHub个人主页',
-            img: '../assets/images/LIAOJIANS.png',
-            src: 'https://github.com/LIAOJIANS',
-            jianjie: '个人主页，项目的仓库',
-            content: '山山好帅哟'
-          },
-          {
-            id: 1,
-            title: 'CNSD博客主页',
-            img: '../assets/images/weixin_44014980.png',
-            src: 'https://blog.csdn.net/weixin_44014980',
-            jianjie: 'CNSD博客主页介绍',
-            content: '山山好帅哟'
-          },
-          {
-            id: 1,
-            title: 'GitHub个人主页',
-            img: '../assets/images/shan.png',
-            src: '',
-            jianjie: '个人主页，项目的仓库',
-            content: '山山好帅哟'
-          },
-          {
-            id: 1,
-            title: 'GitHub个人主页',
-            img: '../assets/images/LIAOJIANS.png',
-            src: '',
-            jianjie: '个人主页，项目的仓库',
-            content: '山山好帅哟'
-          },
-          {
-            id: 1,
-            title: 'GitHub个人主页',
-            img: '../assets/images/LIAOJIANS.png',
-            src: '',
-            jianjie: '个人主页，项目的仓库',
-            content: '山山好帅哟'
-          },
-          {
-            id: 1,
-            title: 'GitHub个人主页',
-            img: '../assets/images/LIAOJIANS.png',
-            src: '',
-            jianjie: '个人主页，项目的仓库',
-            content: '山山好帅哟'
-          }
+        isShow: false,
+        datas: [
+
         ],
         content: {
         }
       };
     },
     mounted() {
+      this.isShow = true
       this.open1()
+      this.datas = [
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: 'https://github.com/LIAOJIANS',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'CNSD博客主页',
+          img: '../assets/images/weixin_44014980.png',
+          src: 'https://blog.csdn.net/weixin_44014980',
+          jianjie: 'CNSD博客主页介绍',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/shan.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        },
+        {
+          id: 1,
+          title: 'GitHub个人主页',
+          img: '../assets/images/LIAOJIANS.png',
+          src: '',
+          jianjie: '个人主页，项目的仓库',
+          content: '山山好帅哟'
+        }
+      ]
     },
     methods: {
       open1() {
@@ -154,7 +200,49 @@
       handleClose(key, keyPath) {
         console.log(key, keyPath);
       }
-    }
+    },
+    computed: {
+      /*
+        根据datas数组生成一个二维数组
+        小数组中的元素个数最大是8
+       */
+      datasArr() {
+        const { datas } = this
+        // 准备二维空数组
+        const arr = []
+        let minArr = []
+        // 遍历emjop
+        datas.forEach(c => {
+          // 如果当前小数组已经满了，创建一个新数组
+          if(minArr.length === 6) {
+            minArr = []
+          }
+          // 如果minArr是空的，将小数组保存到大数组中
+          if(minArr.length === 0) {
+            arr.push(minArr)
+          }
+          // 将当前分类保存到小数组中
+          minArr.push(c)
+        })
+        return arr
+      }
+    },
+    watch: {
+      datas (value) {
+        // 界面更新之后立即使用轮播图
+        this.$nextTick(() => {
+          new Swiper('.swiper-container', {
+            autoplay: false,
+            observeParents: true,
+            observer: true,
+            pagination: {
+              el: '.swiper-pagination',
+              clickable: true
+            }
+          })
+        })
+      }
+    },
   }
 </script>
 
@@ -167,22 +255,40 @@
   .content {
     display: flex;
   }
-  .box {
-    width: 60%;
+  .left {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+  }
+  .swiper-pagination {
+  }
+  .swiper-pagination  >span.swiper-pagination-bullet-active {
+    background-color: #8650d9;
+  }
+  .swiper-container {
+    width: 60%;
+    margin: 0 auto;
+    height: 100%;
+    padding-bottom: 50px;
+  }
+  .swiper-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
   .box_son {
     margin-top: 30px;
-    margin-left: 5%;
-    width: 25%;
+    width: 28%;
+    margin-left: 3%;
   }
   .box_son img {
     cursor: pointer;
   }
   .box_son:nth-of-type(1),
-  .box_son:nth-of-type(4) {
+  .box_son:nth-of-type(3n + 1) {
     margin-left: 0;
   }
   .time {
