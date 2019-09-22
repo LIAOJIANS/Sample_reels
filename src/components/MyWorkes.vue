@@ -34,6 +34,7 @@
               <div class="box_son" :span="8" v-for="(item, index) in items" :key="index">
                   <el-card :body-style="{ padding: '0px' }" shadow="hover">
                     <el-popover
+                      close-delay="50"
                       placement="left"
                       :title="item.title"
                       width="200"
@@ -214,7 +215,7 @@
         // 遍历emjop
         datas.forEach(c => {
           // 如果当前小数组已经满了，创建一个新数组
-          if(minArr.length === 6) {
+          if(minArr.length === 8) {
             minArr = []
           }
           // 如果minArr是空的，将小数组保存到大数组中
@@ -254,6 +255,7 @@
   }
   .content {
     display: flex;
+    min-width: 1080px;
   }
   .left {
     position: absolute;
@@ -281,21 +283,21 @@
   }
   .swiper-slide {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     align-items: flex-start;
     flex-wrap: wrap;
   }
   .box_son {
     margin-top: 30px;
-    width: 28%;
-    margin-left: 3%;
+    width: 25%;
+    padding-left: 20px;
   }
   .box_son img {
     cursor: pointer;
   }
   .box_son:nth-of-type(1),
-  .box_son:nth-of-type(3n + 1) {
-    margin-left: 0;
+  .box_son:nth-of-type(4n + 1) {
+    margin-left: -20px;
   }
   .time {
     font-size: 13px;
