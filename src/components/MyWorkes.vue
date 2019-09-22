@@ -259,6 +259,12 @@
     position: absolute;
   }
   .swiper-pagination {
+    width: 100%;
+    bottom: 10px;
+    left: 0;
+  }
+  .swiper-pagination > span {
+    margin: 0 4px;
   }
   .swiper-pagination  >span.swiper-pagination-bullet-active {
     background-color: #8650d9;
