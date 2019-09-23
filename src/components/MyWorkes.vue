@@ -1,6 +1,7 @@
 <template>
   <div class="work">
     <div class="content">
+<!--      导航栏部分-->
       <div class="left">
         <el-radio-group v-model="isCollapse">
           <el-radio-button :label="false">个人介绍</el-radio-button>
@@ -25,12 +26,38 @@
             <i class="el-icon-document"></i>
             <span slot="title">合作伙伴</span>
           </el-menu-item>
-          <el-menu-item index="4" @click="dialogFormVisible = true">
-            <i class="el-icon-document"></i>
-            <span slot="title">添加项目</span>
+          <el-submenu  index="4" @click=" isLogin ? dialogFormVisible = true : messageBox('info', '请输入操作码') ">
+            <template slot="title">
+              <i class="el-icon-s-cooperation"></i>
+              <span slot="title">作品操作</span>
+            </template>
+            <el-menu-item-group>
+              <span slot="title">操作</span>
+              <el-menu-item index="1-1">
+                <i class="el-icon-plus"></i>
+                <span slot="title">添加项目</span>
+              </el-menu-item>
+              <el-menu-item index="1-2">
+                <i class="el-icon-edit"></i>
+                <span slot="title">更改项目</span>
+              </el-menu-item>
+              <el-menu-item index="1-3">
+                <i class="el-icon-minus"></i>
+                <span slot="title">删除项目</span>
+              </el-menu-item>
+            </el-menu-item-group>
+          </el-submenu >
+          <el-menu-item index="5" @click="isShowUserInfo = true">
+            <i class="el-icon-s-custom"></i>
+            <span slot="title">个人信息</span>
+          </el-menu-item>
+          <el-menu-item index="6" @click="adminPwd">
+            <i class="el-icon-coordinate"></i>
+            <span slot="title">操作码</span>
           </el-menu-item>
         </el-menu>
       </div>
+<!--      项目列表-->
       <transition name="el-zoom-in-center">
         <div class="swiper-container"  v-show="isShow">
           <div class="swiper-wrapper">
@@ -40,14 +67,14 @@
                     <el-popover
                       :close-delay=50
                       placement="left"
-                      :title="item.title"
+                      :title="item.workName"
                       width="200"
                       trigger="hover"
-                      :content="item.content">
-                      <img  slot="reference" @click="showLeft(item)" src="../assets/images/LIAOJIANS.png" class="image">
+                      :content="item.workIntroduction">
+                      <img  slot="reference" @click="showLeft(item)" :src="item.workImg" class="image">
                     </el-popover>
                     <div style="padding: 14px;">
-                      <span>{{ item.title }}</span>
+                      <span>{{ item.workName }}</span>
                       <div class="bottom clearfix">
                         <time class="time">
                           <el-rate
@@ -55,7 +82,7 @@
                           </el-rate>
                         </time>
                         <el-tooltip class="item" effect="dark" content="点击跳转至该项目" placement="right">
-                          <el-button type="text" class="button" @click="src(item.src)">操作按钮</el-button>
+                          <el-button type="text" class="button" @click="src(item.workSrc)">操作按钮</el-button>
                         </el-tooltip>
                       </div>
                     </div>
@@ -67,13 +94,15 @@
         </div>
       </transition>
     </div>
+<!--    左滑详情列表-->
     <el-drawer
-      :title="content.title"
+      :title="content.workName"
       :visible.sync="drawer"
       :direction="direction"
       :before-close="handleCloseLeft">
-      <span>{{ content.content }}</span>
+      <span>{{ content.workContent }}</span>
     </el-drawer>
+<!--    上传表单-->
     <el-dialog title="添加作品" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="作品名称" :label-width="formLabelWidth">
@@ -83,7 +112,7 @@
           <el-input v-model="form.info" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="作品内容" :label-width="formLabelWidth">
-          <el-input v-model="form.content" autocomplete="off"></el-input>
+          <el-input type="textarea" v-model="form.content" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="作品链接" :label-width="formLabelWidth">
           <el-input v-model="form.srcs" autocomplete="off"></el-input>
@@ -108,23 +137,31 @@
         <el-button type="primary" @click="submitUpload">确 定</el-button>
       </div>
     </el-dialog>
+<!--    作者介绍-->
+    <el-dialog title="个人介绍" :visible.sync="isShowUserInfo">
+      <UserInfo />
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import Swiper from 'swiper'
   import 'swiper/dist/css/swiper.min.css'
+  import UserInfo from './UserInfo'
   import axios from 'axios'
+  import { reqWorkList, reqAdminPwd, reqAdminInfo } from '../api'
   export default {
     data() {
       return {
-        drawer: false,
+        drawer: false, // 默认隐藏左边详情页
+        isShowUserInfo: false, // 是否显示个人信息
         direction: 'ltr',
-        value: null,
+        value: null, //
         isCollapse: true,
-        isShow: false,
-        dialogTableVisible: false,
-        dialogFormVisible: false,
+        isShow: false, // 默认隐藏项目列表
+        dialogTableVisible: false, //
+        dialogFormVisible: false, // 默认隐藏表单
+        isLogin: false, // 是否输入操作码
         fileList: [], // 文件数组
         form: { // 表单数据
           name: '',
@@ -132,113 +169,70 @@
           content: '',
           srcs: '',
         },
-        formLabelWidth: '120px',
-        datas: [
+        formLabelWidth: '120px', // 详情宽度
+        datas: [ // 项目数据
 
         ],
-        content: {
+        content: { // 详情数据
         }
       };
     },
+    created() {
+      // 获取是否管理员
+      this.AdminInfo()
+    },
     mounted() {
+      // 默认动画
       this.isShow = true
+      // 打开欢迎信息
       this.open1()
-      this.datas = [
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: 'https://github.com/LIAOJIANS',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'CNSD博客主页',
-          img: '../assets/images/weixin_44014980.png',
-          src: 'https://blog.csdn.net/weixin_44014980',
-          jianjie: 'CNSD博客主页介绍',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/shan.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        },
-        {
-          id: 1,
-          title: 'GitHub个人主页',
-          img: '../assets/images/LIAOJIANS.png',
-          src: '',
-          jianjie: '个人主页，项目的仓库',
-          content: '山山好帅哟'
-        }
-      ]
+      this.getWorkList()
     },
     methods: {
-      open1() {
+      async AdminInfo() { // 异步请求是否输入校验码
+       const result = await reqAdminInfo()
+        if (result.code === 0) {
+            this.isLogin = result.data.login
+        }
+      },
+      async getWorkList() { // 异步获取作品信息
+       const result = await reqWorkList()
+        if (result.code === 0) {
+          this.datas = result.data
+        }
+      },
+      adminPwd() { // 发送操作码
+        this.$prompt('请输入操作码', '提示').then(({ value }) => {
+          this.adminYzm(value)
+        }).catch(() => {
+          this.messageBox('info', '取消输入')
+        });
+      },
+      messageBox(type, message) { // 提示函数
+        this.$message({
+          type: type,
+          message: message
+        });
+      },
+      async adminYzm(value) { // 异步发送操作码
+        const result = await reqAdminPwd({ adminPwd: value })
+        if (result.code === 0) {
+          this.messageBox('success', '成功获得权限')
+          this.AdminInfo()
+        }
+      },
+      open1() { // 初始化页面弹出欢迎信息
         const h = this.$createElement;
         this.$notify({
           title: '欢迎',
           message: h('i', { style: 'color: teal'}, '欢迎您的到来！')
         });
       },
-      showLeft(item) {
+      showLeft(item) { // 左边弹出详情
         this.drawer = true
         this.content = item
       },
-      submitUpload() {
+      submitUpload() { // 校验图片
         let list = document.getElementsByClassName('el-upload-list__item is-ready')
         if(list.length == 0){
           this.$message({
@@ -251,11 +245,11 @@
         this.$refs.upload.submit()
         this.dialogFormVisible = false
       },
-      async uploadSectionFile(param) {
+      async uploadSectionFile(param) { // 异步提交表单
         let fileObj = param.file
         let filename = new FormData()
         // 获取上传的表单数据
-        const form = this.form
+        const { form, isLogin } = this
         // 在filename的append添加健值方法
         filename.append("file", fileObj)
         filename.append("workName", form.name)
@@ -267,7 +261,12 @@
         // 发送请求
         await axios.post('http://localhost:4000/addWork', filename, headers).then(res => {
           if (res.data.code === 0) {
-              
+            this.$notify({
+              title: '成功',
+              message: '提交成功',
+              type: 'success'
+            })
+            location.reload()
           }
         })
       },
@@ -326,6 +325,9 @@
         })
       }
     },
+    components: {
+      UserInfo
+    }
   }
 </script>
 
