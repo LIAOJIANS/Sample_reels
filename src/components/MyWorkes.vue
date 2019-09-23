@@ -26,22 +26,22 @@
             <i class="el-icon-document"></i>
             <span slot="title">合作伙伴</span>
           </el-menu-item>
-          <el-submenu  index="4" @click=" isLogin ? dialogFormVisible = true : messageBox('info', '请输入操作码') ">
+          <el-submenu  index="4" >
             <template slot="title">
               <i class="el-icon-s-cooperation"></i>
               <span slot="title">作品操作</span>
             </template>
-            <el-menu-item-group>
+            <el-menu-item-group >
               <span slot="title">操作</span>
-              <el-menu-item index="1-1">
+              <el-menu-item index="1-1"  @click="ShowFunction">
                 <i class="el-icon-plus"></i>
                 <span slot="title">添加项目</span>
               </el-menu-item>
-              <el-menu-item index="1-2">
+              <el-menu-item index="1-2"  @click="ShowFunction">
                 <i class="el-icon-edit"></i>
                 <span slot="title">更改项目</span>
               </el-menu-item>
-              <el-menu-item index="1-3">
+              <el-menu-item index="1-3"  @click="ShowFunction">
                 <i class="el-icon-minus"></i>
                 <span slot="title">删除项目</span>
               </el-menu-item>
@@ -189,6 +189,9 @@
       this.getWorkList()
     },
     methods: {
+      ShowFunction() {
+        this.isLogin ? this.dialogFormVisible = true : messageBox('info', '请输入操作码')
+      },
       async AdminInfo() { // 异步请求是否输入校验码
        const result = await reqAdminInfo()
         if (result.code === 0) {
@@ -257,7 +260,7 @@
         filename.append("workIntroduction", form.info)
         filename.append("workContent", form.content)
         // 请求报文头
-        let headers = {headers: {"Content-Type": "multipart/form-data"}}
+        let headers = { headers: { "Content-Type": "multipart/form-data" } }
         // 发送请求
         await axios.post('http://localhost:4000/addWork', filename, headers).then(res => {
           if (res.data.code === 0) {
