@@ -78,6 +78,7 @@
                       <div class="bottom clearfix">
                         <time class="time">
                           <el-rate
+                            @click="rate(item.index)"
                             v-model="value">
                           </el-rate>
                         </time>
@@ -189,8 +190,11 @@
       this.getWorkList()
     },
     methods: {
+      rate(index) {
+        console.log(index)
+      },
       ShowFunction() {
-        this.isLogin ? this.dialogFormVisible = true : messageBox('info', '请输入操作码')
+        this.isLogin ? this.dialogFormVisible = true : this.messageBox('info', '请输入操作码')
       },
       async AdminInfo() { // 异步请求是否输入校验码
        const result = await reqAdminInfo()

@@ -8,6 +8,13 @@ import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/base.css';
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
 
+
+import ljsui from 'ljs-ui'
+Vue.use(ljsui)
+
+// import { AlertTip } from 'ljs-ui'
+// Vue.component(AlertTip.name, AlertTip)
+
 Vue.component(CollapseTransition.name, CollapseTransition)
 Vue.use(ElementUI);
 Vue.config.productionTip = false
