@@ -76,12 +76,6 @@
                     <div style="padding: 14px;">
                       <span>{{ item.workName }}</span>
                       <div class="bottom clearfix">
-                        <time class="time">
-                          <el-rate
-                            @click="rate(item.index)"
-                            v-model="value">
-                          </el-rate>
-                        </time>
                         <el-tooltip class="item" effect="dark" content="点击跳转至该项目" placement="right">
                           <el-button type="text" class="button" @click="src(item.workSrc)">操作按钮</el-button>
                         </el-tooltip>
@@ -366,7 +360,7 @@
     width: 60%;
     margin: 0 auto;
     height: 100%;
-    padding-bottom: 50px;
+    padding-bottom: 50px!important;
   }
   .swiper-wrapper {
     width: 100%;
