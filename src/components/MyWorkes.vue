@@ -33,15 +33,15 @@
             </template>
             <el-menu-item-group >
               <span slot="title">操作</span>
-              <el-menu-item index="1-1"  @click="ShowFunction">
+              <el-menu-item index="1-1"  @click="ShowFunction('add')">
                 <i class="el-icon-plus"></i>
                 <span slot="title">添加项目</span>
               </el-menu-item>
-              <el-menu-item index="1-2"  @click="ShowFunction">
+              <el-menu-item index="1-2"  @click="ShowFunction('dandu')">
                 <i class="el-icon-edit"></i>
                 <span slot="title">更改项目</span>
               </el-menu-item>
-              <el-menu-item index="1-3"  @click="ShowFunction">
+              <el-menu-item index="1-3"  @click="ShowFunction('dandu')">
                 <i class="el-icon-minus"></i>
                 <span slot="title">删除项目</span>
               </el-menu-item>
@@ -136,6 +136,9 @@
     <el-dialog title="个人介绍" :visible.sync="isShowUserInfo">
       <UserInfo />
     </el-dialog>
+    <el-dialog title="个人介绍" :visible.sync="isShowFunction">
+      <Function :workList = 'datas'/>
+    </el-dialog>
   </div>
 </template>
 
@@ -143,6 +146,7 @@
   import Swiper from 'swiper'
   import 'swiper/dist/css/swiper.min.css'
   import UserInfo from './UserInfo'
+  import Function from './Function'
   import axios from 'axios'
   import { reqWorkList, reqAdminPwd, reqAdminInfo } from '../api'
   export default {
@@ -150,6 +154,7 @@
       return {
         drawer: false, // 默认隐藏左边详情页
         isShowUserInfo: false, // 是否显示个人信息
+        isShowFunction: false, // 显示炒作按钮
         direction: 'ltr',
         value: null, //
         isCollapse: true,
@@ -187,13 +192,24 @@
       rate(index) {
         console.log(index)
       },
-      ShowFunction() {
-        this.isLogin ? this.dialogFormVisible = true : this.messageBox('info', '请输入操作码')
+      ShowFunction(type) {
+        switch (type) {
+          case 'add':
+            this.isLogin ? this.dialogFormVisible = true : this.messageBox('info', '请输入操作码')
+            break;
+          case 'dandu':
+            this.isLogin ? this.isShowFunction = true : this.messageBox('info', '请输入操作码')
+            break;
+          default:
+            this.messageBox('info', '错误')
+        }
       },
       async AdminInfo() { // 异步请求是否输入校验码
        const result = await reqAdminInfo()
         if (result.code === 0) {
             this.isLogin = result.data.login
+        } else {
+            this.messageBox('info', result.msg)
         }
       },
       async getWorkList() { // 异步获取作品信息
@@ -220,6 +236,8 @@
         if (result.code === 0) {
           this.messageBox('success', '成功获得权限')
           this.AdminInfo()
+        } else {
+          this.messageBox('info', result.msg)
         }
       },
       open1() { // 初始化页面弹出欢迎信息
@@ -257,10 +275,11 @@
         filename.append("workSrc", form.srcs)
         filename.append("workIntroduction", form.info)
         filename.append("workContent", form.content)
+        filename.append("isLogin", isLogin)
         // 请求报文头
         let headers = { headers: { "Content-Type": "multipart/form-data" } }
         // 发送请求
-        await axios.post('http://localhost:4000/addWork', filename, headers).then(res => {
+        await axios.post('http://106.53.70.87:4001/addWork', filename, headers).then(res => {
           if (res.data.code === 0) {
             this.$notify({
               title: '成功',
@@ -268,11 +287,14 @@
               type: 'success'
             })
             location.reload()
+          } else {
+            this.messageBox('info', res.data.msg)
           }
         })
       },
       src(srcs){
-        location.href = srcs // 跳转路径
+        // parent.location.href = srcs // 跳转路径
+        window.open(srcs, '_blank');
       },
       handleCloseLeft(done) {
         done();
@@ -327,7 +349,8 @@
       }
     },
     components: {
-      UserInfo
+      UserInfo,
+      Function
     }
   }
 </script>
