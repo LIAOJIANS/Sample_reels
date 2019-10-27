@@ -3,6 +3,7 @@
     <div class="content">
 <!--      导航栏部分-->
       <div class="left">
+        <br>
         <el-radio-group v-model="isCollapse">
           <el-radio-button :label="false">个人介绍</el-radio-button>
           <el-radio-button :label="true">收起</el-radio-button>
@@ -54,6 +55,10 @@
           <el-menu-item index="6" @click="adminPwd">
             <i class="el-icon-coordinate"></i>
             <span slot="title">操作码</span>
+          </el-menu-item>
+          <el-menu-item index="7">
+            <i class="el-icon-user"></i>
+            <span slot="title">网站访问人数:{{ countIp }}</span>
           </el-menu-item>
         </el-menu>
       </div>
@@ -174,7 +179,8 @@
 
         ],
         content: { // 详情数据
-        }
+        },
+        countIp: 0, // 访问数量
       };
     },
     created() {
@@ -216,6 +222,7 @@
        const result = await reqWorkList()
         if (result.code === 0) {
           this.datas = result.data
+          this.countIp = result.count
         }
       },
       adminPwd() { // 发送操作码
